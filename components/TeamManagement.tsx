@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { dbOperations, type Team, type Member } from '@/lib/supabase'
+import { t, locale } from '@/lib/i18n'
 
 interface TeamManagementProps {
   teams: Team[]
@@ -58,13 +59,13 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
 
   const getTeamName = (teamId: string) => {
     const team = teams.find(t => t.id === teamId)
-    return team?.name || 'Unknown Team'
+    return team?.name || (locale === 'zh' ? '未知团队' : 'Unknown Team')
   }
 
   const handleAddTeam = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTeam.name.trim()) {
-      alert('Please provide a team name.')
+      alert(locale === 'zh' ? '请输入团队名称。' : 'Please provide a team name.')
       return
     }
 
@@ -77,16 +78,16 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
       })
 
       if (result) {
-        alert('✅ Team created successfully!')
+        alert(locale === 'zh' ? '✅ 团队创建成功！' : '✅ Team created successfully!')
         setNewTeam({ name: '', budget: '', color: '#3b82f6' })
         setShowAddForm(false)
         onTeamsUpdate()
       } else {
-        alert('❌ Error creating team.')
+        alert(locale === 'zh' ? '❌ 创建团队失败。' : '❌ Error creating team.')
       }
     } catch (error) {
       console.error('Error creating team:', error)
-      alert('❌ Error creating team.')
+      alert(locale === 'zh' ? '❌ 创建团队失败。' : '❌ Error creating team.')
     } finally {
       setLoading(false)
     }
@@ -113,17 +114,17 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
       
       const result = await dbOperations.updateTeam(teamId, updates)
       if (result) {
-        alert('✅ Team updated successfully!')
+        alert(locale === 'zh' ? '✅ 团队更新成功！' : '✅ Team updated successfully!')
         setEditingTeamId(null)
         setEditingName('')
         setEditingBudget('')
         onTeamsUpdate()
       } else {
-        alert('❌ Error updating team.')
+        alert(locale === 'zh' ? '❌ 更新团队失败。' : '❌ Error updating team.')
       }
     } catch (error) {
       console.error('Error updating team:', error)
-      alert('❌ Error updating team.')
+      alert(locale === 'zh' ? '❌ 更新团队失败。' : '❌ Error updating team.')
     } finally {
       setLoading(false)
     }
@@ -133,8 +134,12 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
     const teamMembers = getTeamMembers(teamId)
     
     const confirmMessage = teamMembers.length > 0 
-      ? `Are you sure you want to delete the team "${teamName}"?\n\nThis will also delete ${teamMembers.length} member(s): ${teamMembers.map(m => m.name).join(', ')}\n\nThis action cannot be undone.`
-      : `Are you sure you want to delete the team "${teamName}"? This action cannot be undone.`
+      ? (locale === 'zh' 
+          ? `确定要删除团队“${teamName}”吗？\n\n这也会删除 ${teamMembers.length} 名成员：${teamMembers.map(m => m.name).join(', ')}\n\n此操作不可撤销。`
+          : `Are you sure you want to delete the team "${teamName}"?\n\nThis will also delete ${teamMembers.length} member(s): ${teamMembers.map(m => m.name).join(', ')}\n\nThis action cannot be undone.`)
+      : (locale === 'zh' 
+          ? `确定要删除团队“${teamName}”吗？此操作不可撤销。`
+          : `Are you sure you want to delete the team "${teamName}"? This action cannot be undone.`)
 
     if (!confirm(confirmMessage)) {
       return
@@ -144,15 +149,15 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
     try {
       const result = await dbOperations.deleteTeam(teamId)
       if (result) {
-        alert(`✅ Team "${teamName}" and ${teamMembers.length} member(s) deleted successfully!`)
+        alert(locale === 'zh' ? `✅ 已成功删除团队“${teamName}”及 ${teamMembers.length} 名成员！` : `✅ Team "${teamName}" and ${teamMembers.length} member(s) deleted successfully!`)
         await loadAllMembers()
         onTeamsUpdate()
       } else {
-        alert('❌ Error deleting team.')
+        alert(locale === 'zh' ? '❌ 删除团队失败。' : '❌ Error deleting team.')
       }
     } catch (error) {
       console.error('Error deleting team:', error)
-      alert('❌ Error deleting team.')
+      alert(locale === 'zh' ? '❌ 删除团队失败。' : '❌ Error deleting team.')
     } finally {
       setLoading(false)
     }
@@ -174,24 +179,24 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
       })
 
       if (result) {
-        alert(`✅ Moved ${memberToMove.name} to ${getTeamName(targetTeamId)} successfully!`)
+        alert(locale === 'zh' ? `✅ 已将 ${memberToMove.name} 移动至 ${getTeamName(targetTeamId)}！` : `✅ Moved ${memberToMove.name} to ${getTeamName(targetTeamId)} successfully!`)
         setMemberToMove(null)
         setTargetTeamId('')
         await loadAllMembers()
         onTeamsUpdate()
       } else {
-        alert('❌ Error moving member.')
+        alert(locale === 'zh' ? '❌ 移动成员失败。' : '❌ Error moving member.')
       }
     } catch (error) {
       console.error('Error moving member:', error)
-      alert('❌ Error moving member.')
+      alert(locale === 'zh' ? '❌ 移动成员失败。' : '❌ Error moving member.')
     } finally {
       setLoading(false)
     }
   }
 
   const handleRemoveMember = async (member: Member) => {
-    if (!confirm(`Are you sure you want to remove ${member.name} from ${getTeamName(member.team_id)}? This will delete the member entirely.`)) {
+    if (!confirm(locale === 'zh' ? `确定从 ${getTeamName(member.team_id)} 移除 ${member.name} 吗？此操作将彻底删除该成员。` : `Are you sure you want to remove ${member.name} from ${getTeamName(member.team_id)}? This will delete the member entirely.`)) {
       return
     }
 
@@ -199,15 +204,15 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
     try {
       const result = await dbOperations.deleteMember(member.id)
       if (result) {
-        alert(`✅ Removed ${member.name} successfully!`)
+        alert(locale === 'zh' ? `✅ 已移除 ${member.name}！` : `✅ Removed ${member.name} successfully!`)
         await loadAllMembers()
         onTeamsUpdate()
       } else {
-        alert('❌ Error removing member.')
+        alert(locale === 'zh' ? '❌ 移除成员失败。' : '❌ Error removing member.')
       }
     } catch (error) {
       console.error('Error removing member:', error)
-      alert('❌ Error removing member.')
+      alert(locale === 'zh' ? '❌ 移除成员失败。' : '❌ Error removing member.')
     } finally {
       setLoading(false)
     }
@@ -216,45 +221,45 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">Team Management</h3>
+        <h3 className="text-lg font-semibold">{t('teams.title')}</h3>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
         >
           <span>+</span>
-          <span>Add Team</span>
+          <span>{t('teams.addTeam')}</span>
         </button>
       </div>
 
       {/* Add Team Form */}
       {showAddForm && (
         <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-          <h4 className="font-medium mb-3">Add New Team</h4>
+          <h4 className="font-medium mb-3">{t('teams.addNewTeam')}</h4>
           <form onSubmit={handleAddTeam} className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('teams.teamName')}</label>
               <input
                 type="text"
                 value={newTeam.name}
                 onChange={(e) => setNewTeam(prev => ({...prev, name: e.target.value}))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter team name"
+                placeholder={locale === 'zh' ? '请输入团队名称' : 'Enter team name'}
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Team Budget (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('teams.teamBudgetOptional')}</label>
               <input
                 type="number"
                 value={newTeam.budget || ''}
                 onChange={(e) => setNewTeam(prev => ({...prev, budget: e.target.value}))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter budget amount (leave empty for 0)"
+                placeholder={locale === 'zh' ? '输入预算金额（留空为0）' : 'Enter budget amount (leave empty for 0)'}
                 min="0"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Team Color</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('teams.teamColor')}</label>
               <div className="flex gap-2">
                 {colorOptions.map(color => (
                   <button
@@ -273,14 +278,14 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                 disabled={loading}
                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
               >
-                <span>Create Team</span>
+                <span>{t('teams.createTeam')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </form>
@@ -308,14 +313,14 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
                             className="px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="Team name"
+                            placeholder={t('teams.teamName')}
                           />
                           <input
                             type="number"
                             value={editingBudget}
                             onChange={(e) => setEditingBudget(e.target.value)}
                             className="px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="Budget (optional)"
+                            placeholder={t('teams.teamBudgetOptional')}
                             min="0"
                           />
                         </div>
@@ -341,13 +346,13 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                       <div>
                         <h4 className="font-medium text-lg">{team.name}</h4>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-500">({teamMembers.length} members)</span>
+                          <span className="text-sm text-gray-500">({teamMembers.length} {t('common.members')})</span>
                           <span className="text-sm text-blue-600">
-                            Budget: {team.budget ? `${team.budget.toLocaleString()}U` : 'Unlimited'}
+                            {t('team.budget')}: {team.budget ? `${team.budget.toLocaleString()}U` : 'Unlimited'}
                           </span>
                           {team.budget && teamMembers.length > 0 && (
                             <span className="text-xs text-gray-400">
-                              ({(team.budget / teamMembers.length).toFixed(0)}U per member)
+                              ({(team.budget / teamMembers.length).toFixed(0)}U / {t('common.member')})
                             </span>
                           )}
                         </div>
@@ -361,7 +366,7 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                       <button
                         onClick={() => setShowMemberEditor(showMemberEditor === team.id ? null : team.id)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                        title="Manage Members"
+                        title={t('common.manageMembers')}
                       >
                         👥
                       </button>
@@ -369,7 +374,7 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                         onClick={() => handleEditTeam(team)}
                         disabled={loading}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                        title="Edit Name"
+                        title={t('teams.editName')}
                       >
                         ✏️
                       </button>
@@ -377,7 +382,7 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                         onClick={() => handleDeleteTeam(team.id, team.name)}
                         disabled={loading}
                         className="p-2 text-red-600 hover:bg-red-50 rounded"
-                        title="Delete Team"
+                        title={t('teams.deleteTeam')}
                       >
                         🗑️
                       </button>
@@ -389,9 +394,9 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
               {/* Team Members Management */}
               {showMemberEditor === team.id && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <h5 className="font-medium mb-3">Team Members ({teamMembers.length})</h5>
+                  <h5 className="font-medium mb-3">{t('members.teamMembers')} ({teamMembers.length})</h5>
                   {teamMembers.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No members in this team</p>
+                    <p className="text-gray-500 text-sm">{t('teams.noMembersInTeam')}</p>
                   ) : (
                     <div className="space-y-2">
                       {teamMembers.map(member => (
@@ -403,16 +408,16 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                             <button
                               onClick={() => handleMoveMember(member)}
                               className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                              title="Move to another team"
+                              title={t('teams.moveToTeam')}
                             >
-                              Move
+                              {t('teams.move')}
                             </button>
                             <button
                               onClick={() => handleRemoveMember(member)}
                               className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                              title="Remove from team"
+                              title={t('teams.remove')}
                             >
-                              Remove
+                              {t('teams.remove')}
                             </button>
                           </div>
                         </div>
@@ -431,21 +436,21 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">
-              Move {memberToMove.name}
+              {t('teams.move')} {memberToMove.name}
             </h3>
             <p className="text-gray-600 mb-4">
-              Currently in: {getTeamName(memberToMove.team_id)}
+              {locale === 'zh' ? '当前所在：' : 'Currently in:'} {getTeamName(memberToMove.team_id)}
             </p>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Move to team:
+                {t('teams.moveToTeam')}
               </label>
               <select
                 value={targetTeamId}
                 onChange={(e) => setTargetTeamId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select a team</option>
+                <option value="">{t('teams.selectTeam')}</option>
                 {teams
                   .filter(team => team.id !== memberToMove.team_id)
                   .map(team => (
@@ -461,7 +466,7 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                 disabled={!targetTeamId || loading}
                 className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
               >
-                Move Member
+                {t('teams.moveMember')}
               </button>
               <button
                 onClick={() => {
@@ -470,7 +475,7 @@ export default function TeamManagement({ teams, onTeamsUpdate }: TeamManagementP
                 }}
                 className="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

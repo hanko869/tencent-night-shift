@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { t, monthNamesByLocale, locale } from '@/lib/i18n'
 
 interface MonthSelectorProps {
   currentMonth: number
@@ -9,10 +10,7 @@ interface MonthSelectorProps {
 }
 
 export default function MonthSelector({ currentMonth, currentYear, onMonthChange }: MonthSelectorProps) {
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
+  const monthNames = monthNamesByLocale[locale]
 
   const handlePreviousMonth = () => {
     if (currentMonth === 0) {
@@ -51,18 +49,16 @@ export default function MonthSelector({ currentMonth, currentYear, onMonthChange
       <button
         onClick={handlePreviousMonth}
         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        aria-label="Previous month"
+        aria-label={t('common.previousMonth')}
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
       
       <div className="flex items-center space-x-2 min-w-[200px] justify-center">
         <Calendar className="w-5 h-5 text-gray-500" />
-        <span className="font-medium text-lg">
-          {monthNames[currentMonth]} {currentYear}
-        </span>
+        <span className="font-medium text-lg">{monthNames[currentMonth]} {currentYear}</span>
         {!isCurrentMonth && (
-          <span className="text-xs text-gray-500 ml-2">(Historical)</span>
+          <span className="text-xs text-gray-500 ml-2">{t('common.historical')}</span>
         )}
       </div>
       
@@ -74,7 +70,7 @@ export default function MonthSelector({ currentMonth, currentYear, onMonthChange
             ? 'text-gray-300 cursor-not-allowed' 
             : 'hover:bg-gray-100'
         }`}
-        aria-label="Next month"
+        aria-label={t('common.nextMonth')}
       >
         <ChevronRight className="w-5 h-5" />
       </button>
@@ -84,7 +80,7 @@ export default function MonthSelector({ currentMonth, currentYear, onMonthChange
           onClick={handleCurrentMonth}
           className="ml-2 px-3 py-1 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
         >
-          Current Month
+          {t('common.currentMonth')}
         </button>
       )}
     </div>

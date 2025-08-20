@@ -2,6 +2,7 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { TeamWithExpenditures } from '@/lib/supabase'
+import { t, locale } from '@/lib/i18n'
 
 interface SpendingChartProps {
   teamsData: TeamWithExpenditures[]
@@ -53,14 +54,13 @@ export default function SpendingChart({ teamsData, selectedYear, selectedMonth }
     const year = selectedYear ?? new Date().getFullYear()
     const month = selectedMonth ?? new Date().getMonth()
     const date = new Date(year, month)
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const loc = locale === 'zh' ? 'zh-CN' : 'en-US'
+    return date.toLocaleDateString(loc, { month: 'long', year: 'numeric' })
   }
 
   return (
     <div className="w-full h-96">
-      <div className="text-sm text-gray-600 mb-2 text-center">
-        {getMonthName()} - Daily Spending Trends
-      </div>
+      <div className="text-sm text-gray-600 mb-2 text-center">{getMonthName()} - {t('dashboard.teamOverview')}</div>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -76,7 +76,7 @@ export default function SpendingChart({ teamsData, selectedYear, selectedMonth }
           />
           <Tooltip 
             formatter={(value: number, name: string) => [`${value}U`, name]}
-            labelFormatter={(label) => `Day ${label}`}
+            labelFormatter={(label) => (locale === 'zh' ? `第${label}天` : `Day ${label}`)}
           />
           <Legend />
           {teamsData.map(team => (

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import MonthSelector from '@/components/MonthSelector'
 import TeamManagement from '@/components/TeamManagement'
 import MemberManagement from '@/components/MemberManagement'
+import { t, locale } from '@/lib/i18n'
 
 export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -80,7 +81,7 @@ export default function AdminPanel() {
   }
 
   // Get selected month name
-  const selectedMonthName = new Date(selectedYear, selectedMonth).toLocaleDateString('en-US', { 
+  const selectedMonthName = new Date(selectedYear, selectedMonth).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { 
     month: 'long', 
     year: 'numeric',
     timeZone: 'Asia/Shanghai'
@@ -91,7 +92,7 @@ export default function AdminPanel() {
     if (username === 'admin' && password === '654321') {
       setIsAuthenticated(true)
     } else {
-      alert('Invalid credentials')
+      alert(locale === 'zh' ? '账号或密码错误' : 'Invalid credentials')
     }
   }
 
@@ -109,7 +110,7 @@ export default function AdminPanel() {
       setMembers(allMembers)
     } catch (error) {
       console.error('Error loading data:', error)
-      alert('Error loading data. Database may not be connected yet.')
+      alert(locale === 'zh' ? '加载数据失败。数据库可能未连接。' : 'Error loading data. Database may not be connected yet.')
     } finally {
       setLoading(false)
     }
@@ -162,13 +163,13 @@ export default function AdminPanel() {
         })
         setSelectedMemberId('')
         setShowAddForm(false)
-        alert('✅ Expenditure added successfully to database!')
+        alert(locale === 'zh' ? '✅ 已成功写入数据库！' : '✅ Expenditure added successfully to database!')
       } else {
-        alert('❌ Error: Could not save to database. Please check if environment variables are set in Vercel.')
+        alert(locale === 'zh' ? '❌ 错误：无法写入数据库，请检查环境变量。' : '❌ Error: Could not save to database. Please check if environment variables are set in Vercel.')
       }
     } catch (error) {
       console.error('Error adding expenditure:', error)
-      alert('❌ Database Error: ' + (error instanceof Error ? error.message : 'Unknown error') + '\n\nPlease check if Supabase environment variables are configured in Vercel.')
+      alert((locale === 'zh' ? '❌ 数据库错误：' : '❌ Database Error: ') + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
@@ -203,20 +204,20 @@ export default function AdminPanel() {
       if (result) {
         await loadData()
         setEditingExpenditure(null)
-        alert('Expenditure updated successfully!')
+        alert(locale === 'zh' ? '已更新成功！' : 'Expenditure updated successfully!')
       } else {
-        alert('Error updating expenditure.')
+        alert(locale === 'zh' ? '更新失败。' : 'Error updating expenditure.')
       }
     } catch (error) {
       console.error('Error updating expenditure:', error)
-      alert('Error updating expenditure.')
+      alert(locale === 'zh' ? '更新失败。' : 'Error updating expenditure.')
     } finally {
       setLoading(false)
     }
   }
 
   const handleDeleteExpenditure = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this expenditure?')) return
+    if (!confirm(locale === 'zh' ? '确认删除该支出记录？' : 'Are you sure you want to delete this expenditure?')) return
 
     setLoading(true)
     try {
@@ -224,13 +225,13 @@ export default function AdminPanel() {
       
       if (success) {
         await loadData()
-        alert('Expenditure deleted successfully!')
+        alert(locale === 'zh' ? '删除成功！' : 'Expenditure deleted successfully!')
       } else {
-        alert('Error deleting expenditure.')
+        alert(locale === 'zh' ? '删除失败。' : 'Error deleting expenditure.')
       }
     } catch (error) {
       console.error('Error deleting expenditure:', error)
-      alert('Error deleting expenditure.')
+      alert(locale === 'zh' ? '删除失败。' : 'Error deleting expenditure.')
     } finally {
       setLoading(false)
     }
@@ -247,13 +248,13 @@ export default function AdminPanel() {
       if (result) {
         await loadData()
         setEditingTeam(null)
-        alert('✅ Team budget updated successfully!')
+        alert(locale === 'zh' ? '✅ 团队预算已更新！' : '✅ Team budget updated successfully!')
       } else {
-        alert('❌ Error updating team budget.')
+        alert(locale === 'zh' ? '❌ 更新团队预算失败。' : '❌ Error updating team budget.')
       }
     } catch (error) {
       console.error('Error updating team budget:', error)
-      alert('❌ Database Error: ' + (error instanceof Error ? error.message : 'Unknown error'))
+      alert((locale === 'zh' ? '❌ 数据库错误：' : '❌ Database Error: ') + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
@@ -285,9 +286,9 @@ export default function AdminPanel() {
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <Lock className="mx-auto h-12 w-12 text-blue-600" />
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Admin Login</h2>
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">{process.env.NEXT_PUBLIC_COMPANY_NAME || 'Company'} {t('company.adminLogin')}</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Sign in to manage budget expenditures
+              {locale === 'zh' ? '登录以管理预算支出' : 'Sign in to manage budget expenditures'}
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
@@ -298,7 +299,7 @@ export default function AdminPanel() {
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Username"
+                placeholder={t('admin.username')}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -310,7 +311,7 @@ export default function AdminPanel() {
                 type="password"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Password"
+                placeholder={t('admin.password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -319,7 +320,7 @@ export default function AdminPanel() {
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
             >
-              Sign In
+              {t('admin.signIn')}
             </button>
           </form>
         </div>
@@ -335,7 +336,7 @@ export default function AdminPanel() {
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <span className="text-gray-700">Processing...</span>
+              <span className="text-gray-700">{locale === 'zh' ? '处理中...' : 'Processing...'}</span>
             </div>
           </div>
         )}
@@ -343,10 +344,10 @@ export default function AdminPanel() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600 mt-2">Manage team expenditures and budgets (Beijing Time UTC+8)</p>
+            <h1 className="text-3xl font-bold text-gray-900">{process.env.NEXT_PUBLIC_COMPANY_NAME || 'Company'} {t('company.adminPanel')}</h1>
+            <p className="text-gray-600 mt-2">{locale === 'zh' ? '管理团队支出与预算（北京时间 UTC+8）' : 'Manage team expenditures and budgets (Beijing Time UTC+8)'}</p>
             <p className="text-sm text-blue-600 mt-1 font-medium">
-              Managing data for: {selectedMonthName}
+              {locale === 'zh' ? '当前管理月份：' : 'Managing data for: '} {selectedMonthName}
             </p>
           </div>
           <div className="space-x-4 flex">
@@ -361,7 +362,7 @@ export default function AdminPanel() {
               disabled={loading}
             >
               <Plus className="w-4 h-4" />
-              <span>Add Expenditure</span>
+              <span>{t('admin.addExpenditure')}</span>
             </button>
             <button
               onClick={() => setShowMemberManagement(!showMemberManagement)}
@@ -369,7 +370,7 @@ export default function AdminPanel() {
               disabled={loading}
             >
               <Users className="w-4 h-4" />
-              <span>Manage Members</span>
+              <span>{t('common.manageMembers')}</span>
             </button>
             <button
               onClick={() => setShowTeamManagement(!showTeamManagement)}
@@ -377,20 +378,20 @@ export default function AdminPanel() {
               disabled={loading}
             >
               <Users className="w-4 h-4" />
-              <span>Manage Teams</span>
+              <span>{t('common.manageTeams')}</span>
             </button>
             <button
               onClick={() => router.push('/')}
               className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
             >
               <BarChart3 className="w-5 h-5" />
-              <span>View Dashboard</span>
+              <span>{t('admin.viewDashboard')}</span>
             </button>
             <button
               onClick={() => setIsAuthenticated(false)}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors"
             >
-              Logout
+              {t('common.logout')}
             </button>
           </div>
         </div>
@@ -412,7 +413,7 @@ export default function AdminPanel() {
         {/* Budget Management */}
         {showBudgetManagement && (
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">Budget Management</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('admin.budgetManagement')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {teams.map(team => (
                 <div key={team.id} className="border border-gray-200 rounded-lg p-4">
@@ -431,7 +432,7 @@ export default function AdminPanel() {
                     disabled={loading}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
                   >
-                    Edit Budget
+                    {t('admin.editTeamBudget')}
                   </button>
                 </div>
               ))}
@@ -442,12 +443,12 @@ export default function AdminPanel() {
         {/* Add Form */}
         {showAddForm && (
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">Add New Expenditure</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('admin.addExpenditure')}</h3>
             <form onSubmit={handleAddExpenditure} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Team
+                    {t('common.team')}
                   </label>
                   <select
                     value={newExpenditure.team_id}
@@ -456,7 +457,7 @@ export default function AdminPanel() {
                     disabled={loading}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="">Select team</option>
+                    <option value="">{t('teams.selectTeam')}</option>
                     {teams.map(team => (
                       <option key={team.id} value={team.id}>{team.name}</option>
                     ))}
@@ -465,11 +466,11 @@ export default function AdminPanel() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Member
+                    {t('common.member')}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {members.length === 0 && newExpenditure.team_id && (
-                      <p className="text-sm text-gray-500">No members in this team yet</p>
+                      <p className="text-sm text-gray-500">{t('teams.noMembersInTeam')}</p>
                     )}
                     {members.map(member => (
                       <button
@@ -490,7 +491,7 @@ export default function AdminPanel() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date (Beijing Time)
+                    {locale === 'zh' ? '日期（北京时间）' : 'Date (Beijing Time)'}
                   </label>
                   <input
                     type="date"
@@ -504,7 +505,7 @@ export default function AdminPanel() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Unit Price (U)
+                    {t('common.unitPrice')} (U)
                   </label>
                   <input
                     type="number"
@@ -519,7 +520,7 @@ export default function AdminPanel() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantity
+                    {t('common.quantity')}
                   </label>
                   <input
                     type="number"
@@ -534,7 +535,7 @@ export default function AdminPanel() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                  {t('common.description')}
                 </label>
                 <input
                   type="text"
@@ -543,7 +544,7 @@ export default function AdminPanel() {
                   required
                   disabled={loading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter description"
+                  placeholder={locale === 'zh' ? '请输入描述' : 'Enter description'}
                 />
               </div>
 
@@ -552,7 +553,7 @@ export default function AdminPanel() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2">
                     <Calculator className="h-5 w-5 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-700">Calculation:</span>
+                    <span className="text-sm font-medium text-blue-700">{t('team.calculation')}</span>
                   </div>
                   <div className="mt-2 text-sm text-blue-600">
                     {newExpenditure.unit_price}U × {newExpenditure.quantity} = 
@@ -570,7 +571,7 @@ export default function AdminPanel() {
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
                 >
                   <Save className="h-4 w-4" />
-                  <span>Save Expenditure</span>
+                  <span>{t('admin.saveExpenditure')}</span>
                 </button>
                 <button
                   type="button"
@@ -579,7 +580,7 @@ export default function AdminPanel() {
                   className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
                 >
                   <X className="h-4 w-4" />
-                  <span>Cancel</span>
+                  <span>{t('common.cancel')}</span>
                 </button>
               </div>
             </form>
@@ -589,13 +590,13 @@ export default function AdminPanel() {
         {/* Expenditures Table */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Expenditures</h3>
+            <h3 className="text-lg font-semibold">{t('admin.expenditures')}</h3>
             <select
               value={teamFilter}
               onChange={e => setTeamFilter(e.target.value)}
               className="border border-gray-300 rounded px-3 py-1 text-sm"
             >
-              <option value="all">All Teams</option>
+              <option value="all">{t('teams.selectTeam')}</option>
               {teams.map(team => (
                 <option key={team.id} value={team.id}>{team.name}</option>
               ))}
@@ -606,28 +607,28 @@ export default function AdminPanel() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Team
+                    {t('common.team')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Member
+                    {t('common.member')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
+                    {t('common.description')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Unit Price
+                    {t('common.unitPrice')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Quantity
+                    {t('common.quantity')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Amount
+                    {t('common.totalAmount')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                    {t('common.date')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {locale === 'zh' ? '操作' : 'Actions'}
                   </th>
                 </tr>
               </thead>
@@ -684,10 +685,10 @@ export default function AdminPanel() {
         {editingExpenditure && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Expenditure</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('admin.editExpenditure')}</h3>
               <form onSubmit={handleUpdateExpenditure} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.team')}</label>
                   <select
                     value={editingExpenditure.team_id}
                     onChange={(e) => setEditingExpenditure({...editingExpenditure, team_id: e.target.value})}
@@ -701,14 +702,14 @@ export default function AdminPanel() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Member</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.member')}</label>
                   <select
                     value={editingExpenditure.member_id || ''}
                     onChange={(e) => setEditingExpenditure({...editingExpenditure, member_id: e.target.value || undefined})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     disabled={loading}
                   >
-                    <option value="">Unassigned</option>
+                    <option value="">{locale === 'zh' ? '未分配' : 'Unassigned'}</option>
                     {members
                       .filter(member => member.team_id === editingExpenditure.team_id)
                       .map(member => (
@@ -719,7 +720,7 @@ export default function AdminPanel() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price (U)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.unitPrice')} (U)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -731,7 +732,7 @@ export default function AdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.quantity')}</label>
                   <input
                     type="number"
                     min="1"
@@ -743,7 +744,7 @@ export default function AdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date (Beijing Time)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'zh' ? '日期（北京时间）' : 'Date (Beijing Time)'}</label>
                   <input
                     type="date"
                     value={editingExpenditure.date}
@@ -754,7 +755,7 @@ export default function AdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.description')}</label>
                   <input
                     type="text"
                     value={editingExpenditure.description}
@@ -768,7 +769,7 @@ export default function AdminPanel() {
                 {/* Total Display in Edit Modal */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Total Amount:</span>
+                    <span className="text-sm font-medium text-gray-700">{t('common.totalAmount')}:</span>
                     <span className="text-lg font-bold text-gray-900">
                       {(editingExpenditure.unit_price * editingExpenditure.quantity).toFixed(2)}U
                     </span>
@@ -778,7 +779,7 @@ export default function AdminPanel() {
                 <div className="flex space-x-2">
                   <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2" disabled={loading}>
                     <Save className="h-4 w-4" />
-                    <span>Update</span>
+                    <span>{locale === 'zh' ? '更新' : 'Update'}</span>
                   </button>
                   <button
                     type="button"
@@ -787,7 +788,7 @@ export default function AdminPanel() {
                     disabled={loading}
                   >
                     <X className="h-4 w-4" />
-                    <span>Cancel</span>
+                    <span>{t('common.cancel')}</span>
                   </button>
                 </div>
               </form>
@@ -799,10 +800,10 @@ export default function AdminPanel() {
         {editingTeam && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Team Budget</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('admin.editTeamBudget')}</h3>
               <form onSubmit={handleUpdateTeamBudget} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.team')}</label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-md">
                     <div 
                       className="w-4 h-4 rounded-full" 
@@ -813,7 +814,7 @@ export default function AdminPanel() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Budget (U)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.monthlyBudget')}</label>
                   <input
                     type="number"
                     step="100"
@@ -828,14 +829,14 @@ export default function AdminPanel() {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm text-blue-800">
-                    This will update the monthly budget cap for <strong>{editingTeam.name}</strong> team.
+                    {locale === 'zh' ? '这将更新团队的月度预算上限：' : 'This will update the monthly budget cap for '}<strong>{editingTeam.name}</strong>{locale === 'zh' ? '' : ' team.'}
                   </p>
                 </div>
 
                 <div className="flex space-x-2">
                   <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2" disabled={loading}>
                     <Save className="h-4 w-4" />
-                    <span>Update Budget</span>
+                    <span>{t('admin.updateBudget')}</span>
                   </button>
                   <button
                     type="button"
@@ -844,7 +845,7 @@ export default function AdminPanel() {
                     disabled={loading}
                   >
                     <X className="h-4 w-4" />
-                    <span>Cancel</span>
+                    <span>{t('common.cancel')}</span>
                   </button>
                 </div>
               </form>

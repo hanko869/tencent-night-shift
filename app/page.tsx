@@ -6,6 +6,7 @@ import TeamCard from '@/components/TeamCard'
 import SpendingChart from '@/components/SpendingChart'
 import MonthSelector from '@/components/MonthSelector'
 import { dbOperations, type TeamWithExpenditures, type Team, type Member, type MemberWithSpending } from '@/lib/supabase'
+import { t, locale } from '@/lib/i18n'
 
 interface TeamWithMembers extends Team {
   members: MemberWithSpending[]
@@ -139,7 +140,7 @@ export default function Dashboard() {
   const totalMembers = teamsWithMembers.reduce((sum, team) => sum + team.members.length, 0)
   
   // Get selected month name
-  const selectedMonthName = new Date(selectedYear, selectedMonth).toLocaleDateString('en-US', { 
+  const selectedMonthName = new Date(selectedYear, selectedMonth).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { 
     month: 'long', 
     year: 'numeric',
     timeZone: 'Asia/Shanghai'
@@ -173,8 +174,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Budget Tracker</h1>
-            <p className="text-gray-600 mt-2">Monitor team spending and budget allocation (Beijing Time UTC+8)</p>
+            <h1 className="text-3xl font-bold text-gray-900">{process.env.NEXT_PUBLIC_COMPANY_NAME || 'Company'} {t('dashboard.title')}</h1>
+            <p className="text-gray-600 mt-2">{t('dashboard.subtitle')}</p>
           </div>
           <MonthSelector 
             currentMonth={selectedMonth}
@@ -188,9 +189,9 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Budget</p>
+                <p className="text-sm font-medium text-gray-600">{t('dashboard.totalBudget')}</p>
                 <p className="text-2xl font-bold text-gray-900">{totalBudget.toLocaleString()}U</p>
-                <p className="text-xs text-gray-500">{totalMembers} members × $1000</p>
+                <p className="text-xs text-gray-500">{totalMembers} {t('common.members')}</p>
               </div>
               <DollarSign className="w-8 h-8 text-blue-600" />
             </div>
@@ -199,7 +200,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Spent</p>
+                <p className="text-sm font-medium text-gray-600">{t('dashboard.totalSpent')}</p>
                 <p className="text-2xl font-bold text-red-600">{totalSpent.toLocaleString()}U</p>
               </div>
               <TrendingUp className="w-8 h-8 text-red-600" />
@@ -209,7 +210,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Remaining</p>
+                <p className="text-sm font-medium text-gray-600">{t('dashboard.remaining')}</p>
                 <p className="text-2xl font-bold text-green-600">{totalRemaining.toLocaleString()}U</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
@@ -219,7 +220,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Members</p>
+                <p className="text-sm font-medium text-gray-600">{t('common.members')}</p>
                 <p className="text-2xl font-bold text-gray-900">{totalMembers}</p>
               </div>
               <Users className="w-8 h-8 text-purple-600" />
@@ -230,12 +231,12 @@ export default function Dashboard() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Daily Spending Trends</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('dashboard.teamOverview')}</h3>
             <SpendingChart teamsData={teamsData} selectedYear={selectedYear} selectedMonth={selectedMonth} />
           </div>
           
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Team Overview</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('dashboard.teamOverview')}</h3>
             <div className="space-y-4">
               {teamsWithMembers.map(team => (
                 <div key={team.id} className="group">

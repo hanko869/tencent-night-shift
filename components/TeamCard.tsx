@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TeamWithExpenditures, MemberWithSpending } from '@/lib/supabase'
 import { ChevronDown, ChevronUp, Calculator } from 'lucide-react'
+import { t } from '@/lib/i18n'
 
 interface TeamCardProps {
   team: TeamWithExpenditures
@@ -60,17 +61,17 @@ export default function TeamCard({ team, members }: TeamCardProps) {
         {/* Budget Overview */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-sm text-gray-600">Budget</p>
+            <p className="text-sm text-gray-600">{t('team.budget')}</p>
             <p className="text-lg font-bold text-gray-900">
               {team.budget ? `${team.budget.toLocaleString()}U` : 'Unlimited'}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Spent</p>
+            <p className="text-sm text-gray-600">{t('team.spent')}</p>
             <p className="text-lg font-bold text-danger-600">{team.totalSpent.toLocaleString()}U</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Remaining</p>
+            <p className="text-sm text-gray-600">{t('team.remaining')}</p>
             <p className="text-lg font-bold text-success-600">{team.remaining.toLocaleString()}U</p>
           </div>
         </div>
@@ -78,7 +79,7 @@ export default function TeamCard({ team, members }: TeamCardProps) {
         {/* Progress Bar */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Budget Usage</span>
+            <span className="text-sm font-medium text-gray-700">{t('team.budgetUsage')}</span>
             <span className="text-sm text-gray-600">{team.percentageUsed.toFixed(1)}%</span>
           </div>
           <div className={`w-full ${getProgressBgColor(team.percentageUsed)} rounded-full h-3`}>
@@ -93,14 +94,12 @@ export default function TeamCard({ team, members }: TeamCardProps) {
         {members && members.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-700">
-                Members ({members.length})
-              </h4>
+              <h4 className="text-sm font-medium text-gray-700">{t('common.members')} ({members.length})</h4>
               <button
                 onClick={() => setShowMembers(!showMembers)}
                 className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 text-sm"
               >
-                <span>{showMembers ? 'Hide Members' : 'Show Members'}</span>
+                <span>{showMembers ? t('team.hideMembers') : t('team.showMembers')}</span>
                 {showMembers ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -158,7 +157,7 @@ export default function TeamCard({ team, members }: TeamCardProps) {
                     onClick={() => setSelectedMemberId(null)}
                     className="text-xs text-blue-600 hover:text-blue-700 mt-2"
                   >
-                    Clear filter
+                    {t('team.clearFilter')}
                   </button>
                 )}
               </div>
@@ -171,7 +170,7 @@ export default function TeamCard({ team, members }: TeamCardProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-medium text-gray-700">
-                Expenses ({filteredExpenditures.length})
+                {t('team.expenses')} ({filteredExpenditures.length})
                 {selectedMemberId && (
                   <span className="text-xs text-blue-600 ml-2">
                     (Filtered by {getMemberName(selectedMemberId)})
@@ -182,7 +181,7 @@ export default function TeamCard({ team, members }: TeamCardProps) {
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 text-sm"
               >
-                <span>{isExpanded ? 'Hide Details' : 'Show Details'}</span>
+                <span>{isExpanded ? t('team.hideDetails') : t('team.showDetails')}</span>
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (

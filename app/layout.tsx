@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Company'
+
 export const metadata: Metadata = {
-  title: 'Budget Tracker - Team Software Expenses',
-  description: 'Track and manage software budget for internal company teams',
+  title: `${COMPANY_NAME} - Budget Tracker`,
+  description: `Track and manage software budget for ${COMPANY_NAME}`,
 }
 
 export default function RootLayout({
