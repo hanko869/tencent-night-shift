@@ -99,7 +99,8 @@ export default function AdminPanel() {
   const loadData = async () => {
     setLoading(true)
     try {
-      await dbOperations.initializeTeams()
+      // Don't initialize teams automatically - let users create their own
+      // await dbOperations.initializeTeams()
       const [teamsData, expendituresData, allMembers] = await Promise.all([
         dbOperations.getTeams(),
         dbOperations.getExpenditures(selectedYear, selectedMonth),

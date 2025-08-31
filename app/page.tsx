@@ -34,8 +34,8 @@ export default function Dashboard() {
     try {
       setLoading(true)
       
-      // Initialize teams if needed
-      await dbOperations.initializeTeams()
+      // Don't initialize teams automatically - let users create their own
+      // await dbOperations.initializeTeams()
       
       // Load teams, members and expenditures for selected month
       const [teamsResult, expenditures, allMembers] = await Promise.all([
