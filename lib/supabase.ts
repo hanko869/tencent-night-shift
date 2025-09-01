@@ -753,21 +753,46 @@ export const dbOperations = {
   async addExpenditureWithMember(expenditure: Omit<Expenditure, 'id' | 'created_at'>): Promise<Expenditure | null> {
     try {
       if (dbMode === 'supabase' && supabase) {
+        // First, try with member_id
+        const insertData: any = {
+          team_id: expenditure.team_id,
+          amount: expenditure.amount,
+          unit_price: expenditure.unit_price,
+          quantity: expenditure.quantity,
+          description: expenditure.description,
+          date: expenditure.date
+        }
+        
+        // Only add member_id if it exists
+        if (expenditure.member_id) {
+          insertData.member_id = expenditure.member_id
+        }
+        
         const { data, error } = await supabase
           .from('expenditures')
-          .insert([{
-            team_id: expenditure.team_id,
-            member_id: expenditure.member_id,
-            amount: expenditure.amount,
-            unit_price: expenditure.unit_price,
-            quantity: expenditure.quantity,
-            description: expenditure.description,
-            date: expenditure.date
-          }])
+          .insert([insertData])
           .select()
           .single()
         
         if (error) {
+          // If error is about member_id column not existing, try without it
+          if (error.message && error.message.includes('member_id')) {
+            console.warn('member_id column not found, trying without it...')
+            delete insertData.member_id
+            const { data: retryData, error: retryError } = await supabase
+              .from('expenditures')
+              .insert([insertData])
+              .select()
+              .single()
+            
+            if (retryError) {
+              console.error('Supabase error adding expenditure (retry), falling back to localStorage:', retryError)
+              throw retryError
+            }
+            
+            return retryData
+          }
+          
           console.error('Supabase error adding expenditure with member, falling back to localStorage:', error)
           throw error // Throw to trigger local storage fallback
         }
